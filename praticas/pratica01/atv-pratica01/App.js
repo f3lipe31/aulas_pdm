@@ -1,72 +1,92 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 
-// Importando as Telas
-import DespesaRecente from './screens/DespesaRecentes';
+// Corrigido para os nomes exatos das suas telas
+import DespesasRecentes from './screens/DespesasRecentes';
 import TodasDespesas from './screens/TodasDespesas';
 import GerenciarDespesa from './screens/GerenciarDespesa';
 
-// IMPORTANDO O SEU COMPONENTE DA FOTO:
 import IconButton from './components/IconButton';
+import DespesasContextProvider from './store/despesas-context';
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const BottomTabs = createBottomTabNavigator();
 
-// Menu de Abas Inferiores
-function BottomTabScreen() {
+function DespesasVisaoGeral() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen 
-        name="DespesaRecentes" 
-        component={DespesaRecente} 
+    <BottomTabs.Navigator
+      screenOptions={({ navigation }) => ({
+        headerStyle: { backgroundColor: '#2b3990' },
+        headerTintColor: 'white',
+        tabBarStyle: { backgroundColor: '#2b3990' },
+        tabBarActiveTintColor: '#ffcc00',
+        tabBarInactiveTintColor: '#a1b2d4',
+        headerRight: ({ tintColor }) => (
+          <IconButton
+            icon="add"
+            size={24}
+            color={tintColor}
+            onPress={() => {
+              navigation.navigate('GerenciarDespesa');
+            }}
+          />
+        ),
+      })}
+    >
+      <BottomTabs.Screen
+        name="DespesasRecentes"
+        component={DespesasRecentes}
         options={{
-          title: 'Recentes',
-          tabBarIcon: ({ color, size }) => <Ionicons name="time" size={size} color={color} />
+          title: 'Despesas Recentes',
+          tabBarLabel: 'Recentes',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="hourglass" size={size} color={color} />
+          ),
         }}
       />
-      <Tab.Screen 
-        name="TodasDespesas" 
-        component={TodasDespesas} 
+      <BottomTabs.Screen
+        name="TodasDespesas"
+        component={TodasDespesas}
         options={{
-          title: 'Todas',
-          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />
+          title: 'Todas as Despesas',
+          tabBarLabel: 'Todas',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="calendar" size={size} color={color} />
+          ),
         }}
       />
-    </Tab.Navigator>
+    </BottomTabs.Navigator>
   );
 }
 
-// Navegação Principal (Pilha)
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        
-        <Stack.Screen 
-          name="Despesas" 
-          component={BottomTabScreen} 
-          options={({ navigation }) => ({ // <-- O OPTIONS DA ATIVIDADE 2 FICA AQUI!
-            title: 'Meu App de Despesas',
-            headerRight: ({ tintColor }) => (
-              <IconButton 
-                icon="add" 
-                size={24} 
-                color={tintColor} 
-                onPress={() => navigation.navigate('GerenciarDespesa')} // Abre a tela de gerir
-              />
-            ),
-          })} 
-        />
-
-        <Stack.Screen 
-          name="GerenciarDespesa" 
-          component={GerenciarDespesa} 
-          options={{ title: 'Gerenciar Despesa' }}
-        />
-
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <StatusBar style="light" />
+      <DespesasContextProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: { backgroundColor: '#2b3990' },
+              headerTintColor: 'white',
+            }}
+          >
+            <Stack.Screen
+              name="DespesasVisaoGeral"
+              component={DespesasVisaoGeral}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="GerenciarDespesa"
+              component={GerenciarDespesa}
+              options={{ title: 'Gerenciar Despesa', presentation: 'modal' }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </DespesasContextProvider>
+    </>
   );
 }
